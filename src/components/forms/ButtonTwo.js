@@ -10,7 +10,7 @@ const Button = ({ onPress, title }) => {
       onPress={onPress}
     >
       <LinearGradient
-        colors={['#F4B415', '#F4B415']}
+        colors={['#2859AD', '#2859AD']}
         style={styles.linearGradient}
       >
         <Text style={styles.textoBoton}>{title}</Text>
