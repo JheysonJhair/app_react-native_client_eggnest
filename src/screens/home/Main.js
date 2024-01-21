@@ -7,6 +7,7 @@ import BirdInfo from "../../components/products/BirdInfo";
 import BirdInfoDetails from "../../components/products/BirdInfoDetails";
 import ButtonTwo from "../../components/forms/ButtonTwo";
 import Button from "../../components/forms/Button";
+import ControlComponent from "../../components/products/ControlComponent";
 
 import TemperaturaIcon from "../../components/products/TemperaturaIcon";
 import HumedadIcon from "../../components/products/HumedadIcon";
@@ -14,7 +15,6 @@ import AguaIcon from "../../components/products/Agua";
 
 import { getUserData } from "../../api/apiGetTemperaturaHumedad";
 import { updateAutomatico } from "../../api/apiControlAutomatico";
-
 
 const MainScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -26,6 +26,9 @@ const MainScreen = ({ route }) => {
 
   const [temperatura, setTemperatura] = useState(null);
   const [humedad, setHumedad] = useState(null);
+
+  const [focoEncendido, setFocoEncendido] = useState(false);
+  const [ventiladorEncendido, setVentiladorEncendido] = useState(false);
 
   const fechaInicioObj = new Date(fechaInicio);
   const fechaActualObj = new Date();
@@ -115,7 +118,31 @@ const MainScreen = ({ route }) => {
         </View>
 
         <View style={styles.rightContainer}>
-          <View style={styles.content2}></View>
+          <ControlComponent
+            encendido={ventiladorEncendido}
+            onEncender={() => {
+              console.log("VENTILADOR ENCENDIDO");
+            }}
+            onApagar={() => {
+              console.log("VENTILADOR APAGADO");
+            }}
+            iconoNombre="fan"
+            colorEncendido="#2859ad"
+            colorApagado="#565557"
+          />
+
+          <ControlComponent
+            encendido={focoEncendido}
+            onEncender={() => {
+              console.log("FOCO ENCENDIDO");
+            }}
+            onApagar={() => {
+              console.log("FOCO APAGADO");
+            }}
+            iconoNombre="lightbulb-o"
+            colorEncendido="#f4b415"
+            colorApagado="#565557"
+          />
         </View>
       </View>
       <ButtonTwo
@@ -224,6 +251,14 @@ const styles = StyleSheet.create({
   centerChild: {
     flex: 3,
   },
+  //
+  rightContainer: {
+    marginLeft: 20,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+  }
 });
 
 export default MainScreen;
