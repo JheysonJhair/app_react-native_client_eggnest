@@ -11,28 +11,43 @@ const ControlComponent = ({
   colorEncendido,
   colorApagado,
 }) => {
+  const getIconColor = () => {
+    if (encendido === 1) {
+      return '#565557'; 
+    } else if (encendido === 0) {
+      return colorEncendido; 
+    } else if (encendido === 2) {
+      return '#48C26C'; 
+    }
+    return '#565557'; 
+  };
+
+  const getPowerButtonColor = () => {
+    return encendido === 0 ? colorEncendido : colorApagado;
+  };
+
   return (
     <View style={styles.content2}>
       <Animatable.View animation="fadeIn" duration={1000} style={styles.focoContainer}>
         {iconoNombre === 'fan' ? (
-          <MaterialCommunityIcons name={iconoNombre} size={65} color={encendido ? colorEncendido : '#565557'} />
+          <MaterialCommunityIcons name={iconoNombre} size={65} color={getIconColor()} />
         ) : (
-          <FontAwesome name={iconoNombre} size={65} color={encendido ? colorEncendido : '#565557'} />
+          <FontAwesome name={iconoNombre} size={65} color={getIconColor()} />
         )}
       </Animatable.View>
 
       <View style={styles.botonesContainer}>
-        <TouchableOpacity disabled={encendido} onPress={onEncender}>
+        <TouchableOpacity  onPress={onEncender}>
           <FontAwesome
             name="power-off"
             size={26}
             marginRight={5}
-            color={encendido ? colorEncendido : '#565557'}
+            color={getPowerButtonColor()}
           />
         </TouchableOpacity>
 
-        <TouchableOpacity disabled={!encendido} onPress={() => { console.log("Intentando apagar"); onApagar(); }}>
-          <FontAwesome name="power-off" size={26} marginLeft={5} color={!encendido ? colorApagado : '#565557'} />
+        <TouchableOpacity  onPress={onApagar}>
+          <FontAwesome name="power-off" size={26} marginLeft={5} color={getPowerButtonColor()} />
         </TouchableOpacity>
       </View>
     </View>
@@ -43,15 +58,15 @@ const styles = {
   content2: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingLeft: 3,
+    paddingRight: 3,
   },
   focoContainer: {
-    marginBottom: 10,
+    marginBottom: 8,
   },
   botonesContainer: {
     flexDirection: 'row',
-    marginLeft: 5,
+    marginLeft: 2,
   },
 };
 

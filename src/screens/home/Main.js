@@ -12,9 +12,14 @@ import ControlComponent from "../../components/products/ControlComponent";
 import TemperaturaIcon from "../../components/products/TemperaturaIcon";
 import HumedadIcon from "../../components/products/HumedadIcon";
 import AguaIcon from "../../components/products/Agua";
+import IncubationProcess from "../../components/products/IncubationProcess ";
 
 import { getUserData } from "../../api/apiGetTemperaturaHumedad";
 import { updateAutomatico } from "../../api/apiControlAutomatico";
+import { getIncubatorDataById } from "../../api/apiGetIncuvadora";
+import { updateVentilador } from "../../api/apiControlesVentilador";
+import { updateFoco } from "../../api/apiControlesFoco";
+
 
 const MainScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -27,8 +32,8 @@ const MainScreen = ({ route }) => {
   const [temperatura, setTemperatura] = useState(null);
   const [humedad, setHumedad] = useState(null);
 
-  const [focoEncendido, setFocoEncendido] = useState(false);
-  const [ventiladorEncendido, setVentiladorEncendido] = useState(false);
+  const [focoEncendido, setFocoEncendido] = useState();
+  const [ventiladorEncendido, setVentiladorEncendido] = useState();
 
   const fechaInicioObj = new Date(fechaInicio);
   const fechaActualObj = new Date();
@@ -42,10 +47,44 @@ const MainScreen = ({ route }) => {
         const data = await getUserData();
         setTemperatura(data.valorTemperatura);
         setHumedad(data.valorHumedad);
+
+        const incubatorDataResponse = await getIncubatorDataById(1);
+
+        const mapFocoValue = (value) => {
+          switch (value) {
+            case "0":
+              return 0;
+            case "1":
+              return 1;
+            case "2":
+              return 2;
+            default:
+              return null;
+          }
+        };
+
+        const mapVentiladorValue = (value) => {
+          switch (value) {
+            case "0":
+              return 0;
+            case "1":
+              return 1;
+            case "2":
+              return 2;
+            default:
+              return null;
+          }
+        };
+
+        setFocoEncendido(mapFocoValue(incubatorDataResponse?.foco));
+        setVentiladorEncendido(
+          mapVentiladorValue(incubatorDataResponse?.Ventilador1)
+        );
+
       } catch (error) {
-        setError(error.message);
+        console.log("Error", error);
       }
-    }, 4000);
+    }, 2000);
 
     return () => clearInterval(fetchDataInterval);
   }, []);
@@ -121,10 +160,20 @@ const MainScreen = ({ route }) => {
           <ControlComponent
             encendido={ventiladorEncendido}
             onEncender={() => {
-              console.log("VENTILADOR ENCENDIDO");
+              setMostrarMensaje(false);
+              updateVentilador("0", 1)
+                .then(() => console.log("Ventilador encendido actualizado en la API"))
+                .catch((error) =>
+                  console.error("Error al actualizar ventilador encendido:", error)
+                );
             }}
             onApagar={() => {
-              console.log("VENTILADOR APAGADO");
+              setMostrarMensaje(false);
+              updateVentilador("1", 1)
+                .then(() => console.log("Ventilador apagado actualizado en la API"))
+                .catch((error) =>
+                  console.error("Error al actualizar ventilador apagado:", error)
+                );
             }}
             iconoNombre="fan"
             colorEncendido="#2859ad"
@@ -134,10 +183,20 @@ const MainScreen = ({ route }) => {
           <ControlComponent
             encendido={focoEncendido}
             onEncender={() => {
-              console.log("FOCO ENCENDIDO");
+              setMostrarMensaje(false);
+              updateFoco("0", 1)
+                .then(() => console.log("Foco encendido actualizado en la API"))
+                .catch((error) =>
+                  console.error("Error al actualizar foco encendido:", error)
+                );
             }}
             onApagar={() => {
-              console.log("FOCO APAGADO");
+              setMostrarMensaje(false);
+              updateFoco("1", 1)
+                .then(() => console.log("Foco apagado actualizado en la API"))
+                .catch((error) =>
+                  console.error("Error al actualizar foco apagado:", error)
+                );
             }}
             iconoNombre="lightbulb-o"
             colorEncendido="#f4b415"
@@ -150,19 +209,7 @@ const MainScreen = ({ route }) => {
         onPress={() => handleBotonAutomatico()}
       />
       <Button title="Ver detalles" onPress={() => handleVerDetalles()} />
-      <Text style={styles.h1}>Proceso de incubación</Text>
-      <View style={styles.containerGif}>
-        <View style={styles.outerContainer}>
-          <View style={[styles.centerChild]}>
-            <Image
-              source={{
-                uri: "https://media0.giphy.com/media/Y1Vq94Ivx0EtG/giphy.gif?cid=ecf05e47xcg4psz6jijexl0cyoucgcnwzdtwxbu1mhsrwg9g&ep=v1_gifs_search&rid=giphy.gif&ct=g",
-              }}
-              style={[styles.gif]}
-            />
-          </View>
-        </View>
-      </View>
+      <IncubationProcess />
     </View>
   );
 };
@@ -233,32 +280,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   //
-  containerGif: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    resizeMode: "cover",
-  },
-  gif: {
-    width: "100%",
-    height: 180,
-    resizeMode: "cover",
-  },
-  outerContainer: {
-    flexDirection: "row",
-    width: "100%",
-  },
-  centerChild: {
-    flex: 3,
-  },
-  //
   rightContainer: {
     marginLeft: 20,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
-  }
+  },
 });
 
 export default MainScreen;
