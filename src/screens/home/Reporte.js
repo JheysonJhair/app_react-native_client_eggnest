@@ -1,8 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
+import LineChartComponent from "../../components/graphics/LineChartComponent ";
+import { dataTemperatura } from "../../api/apiDataTemperatura";
+import { dataHumedad } from "../../api/apiDataHumedad";
 
 const ReportScreen = () => {
-  // Mover la declaración de getCurrentDate antes de su uso
+  const currentDate = new Date();
+  const [apiData, setApiData] = useState([]);
+  const [apiData2, setApiData2] = useState([]);
+
+  const [actualizarDatos, setActualizarDatos] = useState(true);
+  const [fechaInicio, setFechaInicio] = useState("");
+  const hours = String(currentDate.getHours()).padStart(2, "0");
+  const minutes = String(currentDate.getMinutes()).padStart(2, "0");
+
   const getCurrentDate = () => {
     const now = new Date();
     const formattedDate = `${now.getFullYear()}-${(now.getMonth() + 1)
@@ -11,21 +22,54 @@ const ReportScreen = () => {
     return formattedDate;
   };
 
-  const currentDate = new Date();
-  const hours = String(currentDate.getHours()).padStart(2, '0');
-  const minutes = String(currentDate.getMinutes()).padStart(2, '0');
-  const fechaInicio = getCurrentDate();
+  useEffect(() => {
+    setFechaInicio(getCurrentDate());
+    const fetchData = async () => {
+      try {
+        const response = await dataTemperatura(50);
+        setApiData(response);
+      } catch (error) {
+        console.error("Error al obtener datos de la API:", error.message);
+      }
+    };
+    const fetchData1 = async () => {
+      try {
+        const response = await dataHumedad(50);
+        setApiData2(response);
+      } catch (error) {
+        console.error("Error al obtener datos de la API:", error.message);
+      }
+    };
+
+    const intervalId = setInterval(() => {
+      fetchData();
+      fetchData1();
+      setActualizarDatos((prev) => !prev);
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [actualizarDatos]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Datos estadísticos</Text>
 
       <Text style={styles.text00}>Fecha: {fechaInicio}</Text>
-      <Text style={styles.text00}>Hora: {hours}:{minutes}</Text>
-      <Image
-        style={styles.chartImage}
-        source={{ uri: "https://i.blogs.es/bd7f0c/control-z-nueva-serie-original-netflix-mexico/1366_2000.png" }}
-      />
+      <Text style={styles.text00}>
+        Hora: {hours}:{minutes}
+      </Text>
+
+      <View style={styles.chartContainer}>
+        <Text style={styles.chartTitle}>Temperatura: </Text>
+        <Text>Ultima temperatura: {apiData[49]} </Text>
+        <LineChartComponent data={apiData} />
+      </View>
+
+      <View style={styles.chartContainer}>
+        <Text style={styles.chartTitle}>Humedad: </Text>
+        <Text>Ultima humedad: {apiData2[49]} </Text>
+        <LineChartComponent data={apiData2} />
+      </View>
     </View>
   );
 };
@@ -58,12 +102,6 @@ const styles = StyleSheet.create({
   text00: {
     fontWeight: "bold",
     marginBottom: 10,
-  },
-  chartImage: {
-    width: '100%',
-    height: 200, 
-    borderRadius: 10,
-    marginTop: 10,
   },
 });
 
