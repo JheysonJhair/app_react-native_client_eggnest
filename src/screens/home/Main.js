@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
 
 import BirdInfo from "../../components/products/BirdInfo";
 import BirdInfoDetails from "../../components/products/BirdInfoDetails";
@@ -20,6 +23,18 @@ import { getIncubatorDataById } from "../../api/apiGetIncuvadora";
 import { updateVentilador } from "../../api/apiControlesVentilador";
 import { updateFoco } from "../../api/apiControlesFoco";
 
+import {
+  schedulePushNotificationTemperatura,
+  schedulePushNotificationHumedad,
+} from "../../hooks/NotificationService";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 const MainScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -47,6 +62,16 @@ const MainScreen = ({ route }) => {
         const data = await getUserData();
         setTemperatura(data.valorTemperatura);
         setHumedad(data.valorHumedad);
+
+        if (data.valorTemperatura >= 37.4 || data.valorTemperatura < 36) {
+          let temperatura = data.valorTemperatura;
+          await schedulePushNotificationTemperatura(temperatura);
+        }
+
+        if (data.valorHumedad >= 60.5  || data.valorHumedad < 54) {
+          let humedad = data.valorHumedad;
+          await schedulePushNotificationHumedad(humedad);
+        }
 
         const incubatorDataResponse = await getIncubatorDataById(1);
 
@@ -80,7 +105,6 @@ const MainScreen = ({ route }) => {
         setVentiladorEncendido(
           mapVentiladorValue(incubatorDataResponse?.Ventilador1)
         );
-
       } catch (error) {
         console.log("Error", error);
       }
@@ -162,17 +186,27 @@ const MainScreen = ({ route }) => {
             onEncender={() => {
               setMostrarMensaje(false);
               updateVentilador("0", 1)
-                .then(() => console.log("Ventilador encendido actualizado en la API"))
+                .then(() =>
+                  console.log("Ventilador encendido actualizado en la API")
+                )
                 .catch((error) =>
-                  console.error("Error al actualizar ventilador encendido:", error)
+                  console.error(
+                    "Error al actualizar ventilador encendido:",
+                    error
+                  )
                 );
             }}
             onApagar={() => {
               setMostrarMensaje(false);
               updateVentilador("1", 1)
-                .then(() => console.log("Ventilador apagado actualizado en la API"))
+                .then(() =>
+                  console.log("Ventilador apagado actualizado en la API")
+                )
                 .catch((error) =>
-                  console.error("Error al actualizar ventilador apagado:", error)
+                  console.error(
+                    "Error al actualizar ventilador apagado:",
+                    error
+                  )
                 );
             }}
             iconoNombre="fan"

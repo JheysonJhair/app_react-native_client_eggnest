@@ -9,10 +9,10 @@ const TemperaturaIcon = ({ temperatura }) => {
 
   useEffect(() => {
     if (temperatura > 0 && temperatura < 35 ) {
+      setColor('blue');
+    } else if (temperatura > 35 && temperatura < 37.3) {
       setColor('green');
-    } else if (temperatura == 37) {
-      setColor('orange');
-    } else if (temperatura > 38) {
+    } else if (temperatura > 37.3) {
       setColor('red');
     }
 

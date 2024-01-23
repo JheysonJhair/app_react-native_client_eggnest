@@ -8,12 +8,12 @@ const HumedadIcon = ({ humedad }) => {
   const [color, setColor] = useState('blue');
 
   useEffect(() => {
-    if (humedad < 30) {
-      setColor('#30afff');
-    } else if (humedad > 70) {
+    if (humedad < 54) {
+      setColor('#9dd1f2');
+    } else if (humedad > 54 && humedad < 60.5) {
       setColor('#000be5');
-    } else {
-      setColor('#0f6bdb');
+    } else if ( humedad > 60.5) {
+      setColor('#ff002e');
     }
 
     if (viewRef.current) {
