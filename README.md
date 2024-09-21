@@ -2,9 +2,9 @@
     <a href="https://github.com/JheysonJhair/app_react-native_client_eggnest">
       <img src="public/Logo.png" width="108px" />
     </a>
-    <h1>EggNest - EggNest</h1>
+    <h1>JhairDev - Eggnest</h1>
     <p align="center">
-        Full Stack developer Jhair
+        Full Stack Developer Jhair
     </p>
 </div>
 
